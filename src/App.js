@@ -1,26 +1,58 @@
-import React from "react";
+import React  from "react";
 
 import "./styles.css";
+import { useEffect, useState } from "react";
+
+import  api from './services/api'
+
 
 function App() {
+
+
+const [currentValue, setToupdadeRepositorie] = useState([])
+
+  useEffect(() => {
+
+    api.get('repositories').then( result => {
+
+      setToupdadeRepositorie(result.data)
+      
+    })
+ 
+  }, [])
+
   async function handleAddRepository() {
-    // TODO
+
+    const result = await api.post('repositories', {
+      url: "https://github.com/samuelpauloantonio",
+      title: "Aprendedo React",
+      techs: ["React", "Node.js"],
+    })
+
+    setToupdadeRepositorie([...currentValue, result.data])
+    
   }
 
   async function handleRemoveRepository(id) {
-    // TODO
+    
+    await api.delete(`repositories/${id}`)
+
+    setToupdadeRepositorie(currentValue.filter(respository => (
+      respository.id != id
+    ))) 
   }
 
   return (
     <div>
       <ul data-testid="repository-list">
-        <li>
-          Repositório 1
-
-          <button onClick={() => handleRemoveRepository(1)}>
-            Remover
-          </button>
-        </li>
+        { currentValue.map(repository => (
+           <li key = {repository.id}> 
+             {repository.title}
+           <button onClick={() => handleRemoveRepository(repository.id)}>
+             Remover
+           </button>
+         </li>
+        ))}
       </ul>
 
       <button onClick={handleAddRepository}>Adicionar</button>
